@@ -16,171 +16,56 @@
 </head>
 <body>
 <!-- Place this at the bottom, just before </body> -->
-<section id="video-tool" class="py-16 bg-[#2b1f38]">
-  <div class="max-w-6xl mx-auto px-6">
-    <h2 class="text-4xl font-bold text-center text-[#D4AF37] mb-12">Video Creation Tool</h2>
-
-    <!-- Prompt Input -->
-    <div class="mb-6">
-      <label class="block text-lg font-semibold mb-2">Enter Your Prompt</label>
-      <textarea id="prompt-input" class="w-full p-4 rounded-lg bg-[#3D2C41] text-white" rows="3" placeholder="Describe your scene..."></textarea>
-      <div class="flex flex-wrap mt-2 gap-2">
-        <button onclick="setPrompt('Funny')" class="btn">Funny</button>
-        <button onclick="setPrompt('Cinematic')" class="btn">Cinematic</button>
-        <button onclick="setPrompt('Fantasy')" class="btn">Fantasy</button>
-        <button onclick="applyTemplate('Ultra-Cinematic')" class="btn">Cinematic Template</button>
-        <button onclick="refinePrompt()" class="btn">Prompt Magic</button>
-      </div>
-    </div>
-
-    <!-- Upload Photos -->
-    <div class="mb-6">
-      <label class="block text-lg font-semibold mb-2">Upload Photos (Photo-to-Video)</label>
-      <input type="file" id="photo-upload" class="w-full p-2 rounded-lg bg-[#3D2C41] text-white" multiple accept="image/png, image/jpeg">
-    </div>
-
-    <!-- Watermark / Logo -->
-    <div class="mb-6">
-      <label class="block font-semibold mb-1">Watermark / Logo (Paid Users)</label>
-      <input type="file" id="watermark-upload" class="w-full p-2 rounded-lg bg-[#3D2C41] text-white" accept="image/png, image/jpeg">
-    </div>
-
-    <!-- Audio Overlay -->
-    <div class="mb-6">
-      <label class="block font-semibold mb-1">Audio Overlay (Optional)</label>
-      <select id="audio-select" class="w-full p-2 rounded-lg bg-[#3D2C41] text-white">
-        <option value="None">None</option>
-        <option value="Epic Music">Epic Music</option>
-        <option value="Ambient">Ambient</option>
-        <option value="Cinematic Voice">Cinematic Voice</option>
-      </select>
-    </div>
-
-    <!-- Video Options -->
-    <div class="mb-6 grid md:grid-cols-3 gap-4">
-      <div>
-        <label class="block font-semibold mb-1">Model</label>
-        <select id="model-select" class="w-full p-2 rounded-lg bg-[#3D2C41] text-white">
-          <option>Hyper-realistic</option>
-          <option>Cinematic</option>
-          <option>Fantasy</option>
-        </select>
-      </div>
-      <div>
-        <label class="block font-semibold mb-1">Resolution</label>
-        <select id="resolution-select" class="w-full p-2 rounded-lg bg-[#3D2C41] text-white">
-          <option>720p</option>
-          <option>1080p</option>
-          <option>4K</option>
-        </select>
-      </div>
-      <div>
-        <label class="block font-semibold mb-1">Length</label>
-        <select id="length-select" class="w-full p-2 rounded-lg bg-[#3D2C41] text-white">
-          <option>6 sec (Free)</option>
-          <option>30 sec</option>
-          <option>1 min</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Generate / Clear Buttons -->
-    <div class="flex flex-wrap gap-4 mb-6">
-      <button onclick="generateVideo(currentUser)" class="btn">Generate Video</button>
-      <button onclick="clearVideo()" class="btn bg-red-600 hover:bg-red-700">Clear / Reset</button>
-    </div>
-
-    <!-- Loading, Batch & Video Preview -->
-    <div id="video-preview" class="mt-6 text-center">
-      <p id="loading-text" class="mb-2 hidden">Generating your video, please wait...</p>
-      <p id="batch-progress" class="mb-2 hidden">Batch: <span id="current-batch">0</span> / <span id="total-batch">0</span></p>
-      <video id="generated-video" class="mx-auto rounded-lg shadow-lg" controls style="max-width:100%; display:none;"></video>
-      <div class="mt-2">
-        <button id="regenerate-btn" class="btn mb-2 hidden" onclick="generateVideo(currentUser)">Regenerate</button>
-        <button id="download-btn" class="btn mb-2 hidden">Download</button>
-      </div>
-      <div id="error-message" class="text-red-500 mt-2 font-semibold text-center"></div>
-    </div>
+<section id="contact" class="py-12 bg-[#3D2C41] text-white">
+  <div class="max-w-3xl mx-auto px-6">
+    <h2 class="text-3xl font-bold mb-6 text-[#D4AF37]">Contact Us</h2>
+    <form id="contact-form" class="flex flex-col gap-4">
+      <input type="text" id="name" placeholder="Your Name" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
+      <input type="email" id="email" placeholder="Your Email" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
+      <textarea id="message" placeholder="Your Message" class="p-3 rounded-lg bg-[#2b1f38] text-white" rows="4" required></textarea>
+      <button type="submit" class="btn bg-[#D4AF37] text-black font-bold">Send</button>
+    </form>
+    <p id="form-status" class="mt-2 text-center"></p>
   </div>
 </section>
 
-<script>
-let currentUser = null; // Replace with your Firebase Auth user
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
-function setPrompt(category) {
-  document.getElementById('prompt-input').value = category + ' prompt example...';
-}
-function refinePrompt() {
-  const input = document.getElementById('prompt-input');
-  input.value = "Refined: " + input.value;
-}
-function applyTemplate(template) {
-  document.getElementById('prompt-input').value = template + " cinematic template applied...";
-}
-function clearVideo() {
-  document.getElementById('generated-video').style.display = "none";
-  document.getElementById('regenerate-btn').classList.add('hidden');
-  document.getElementById('download-btn').classList.add('hidden');
-  document.getElementById('prompt-input').value = '';
-  document.getElementById('photo-upload').value = '';
-  document.getElementById('watermark-upload').value = '';
-  document.getElementById('audio-select').value = 'None';
-  document.getElementById('error-message').innerText = '';
-}
-function showError(message) {
-  document.getElementById('error-message').innerText = message;
-}
-function clearError() {
-  showError('');
-}
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "kairah-studio.firebaseapp.com",
+    projectId: "kairah-studio",
+    storageBucket: "kairah-studio.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID",
+    measurementId: "YOUR_MEASUREMENT_ID"
+  };
 
-async function generateVideo(user) {
-  try {
-    if(!user) {
-      showError('❌ Please sign in first.');
-      return;
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Contact form submit
+  const form = document.getElementById("contact-form");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById("form-status");
+    statusEl.textContent = "Sending...";
+
+    try {
+      await addDoc(collection(db, "messages"), {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        message: document.getElementById("message").value,
+        createdAt: new Date().toISOString()
+      });
+      statusEl.textContent = "✅ Message sent! We'll reach out soon.";
+      form.reset();
+    } catch (err) {
+      statusEl.textContent = "❌ Failed to send. Try again.";
+      console.error(err);
     }
-
-    const prompt = document.getElementById('prompt-input').value;
-    const photos = document.getElementById('photo-upload').files;
-    const model = document.getElementById('model-select').value;
-    const resolution = document.getElementById('resolution-select').value;
-    const length = document.getElementById('length-select').value;
-    const watermark = document.getElementById('watermark-upload').files[0];
-    const audio = document.getElementById('audio-select').value;
-
-    if(!prompt && photos.length === 0) {
-      showError('❌ Enter a prompt or upload at least one photo.');
-      return;
-    }
-
-    clearError();
-    document.getElementById('loading-text').classList.remove('hidden');
-    document.getElementById('generated-video').style.display = 'none';
-    document.getElementById('batch-progress').classList.remove('hidden');
-
-    // Determine batch count
-    const batchCount = (user.plan === 'pro' || user.plan === 'diamond') ? Math.max(photos.length,1) : 1;
-    document.getElementById('total-batch').innerText = batchCount;
-
-    for(let i=0; i<batchCount; i++){
-      document.getElementById('current-batch').innerText = i+1;
-
-      // ----- Replace with your AI backend call -----
-      await new Promise(resolve => setTimeout(resolve, 1500)); // simulate generation delay
-      const videoEl = document.getElementById('generated-video');
-      videoEl.src = "https://streamable.com/e/6psp7n"; // example placeholder
-      videoEl.style.display = 'block';
-      document.getElementById('regenerate-btn').classList.remove('hidden');
-      document.getElementById('download-btn').classList.remove('hidden');
-    }
-
-    document.getElementById('batch-progress').classList.add('hidden');
-
-  } catch(err) {
-    showError('❌ Video generation failed. Try again.');
-  } finally {
-    document.getElementById('loading-text').classList.add('hidden');
-  }
-}
+  });
 </script>
