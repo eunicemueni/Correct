@@ -13,12 +13,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "YOUR-KEY",
-      authDomain: "YOUR-APP.firebaseapp.com",
-      projectId: "YOUR-PROJECT-ID",
-      storageBucket: "YOUR-APP.appspot.com",
-      messagingSenderId: "YOUR-SENDER-ID",
-      appId: "YOUR-APP-ID"
+      apiKey: "AIzaSyAGlNOCAwsgeDnSJtBux2uIMuP0p_jBJns",
+    authDomain: "kairah-studio.firebaseapp.com",
+    projectId: "kairah-studio",
+    storageBucket: "kairah-studio.firebasestorage.app",
+    messagingSenderId: "145122424961",
+    appId: "G-KBJT3RME4G"
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -136,6 +136,48 @@ const firebaseConfig = {
       .catch(error => alert(error.message));
   });
 </script> 
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+</head>
+<body>
+  <h1>Welcome to your Dashboard!</h1>
+  <button id="logout">Logout</button>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+     apiKey: "AIzaSyAGlNOCAwsgeDnSJtBux2uIMuP0p_jBJns",
+    authDomain: "kairah-studio.firebaseapp.com",
+    projectId: "kairah-studio",
+    storageBucket: "kairah-studio.firebasestorage.app",
+    messagingSenderId: "145122424961",
+    appId: "G-KBJT3RME4G" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Logout button
+    document.getElementById('logout').addEventListener('click', () => {
+      auth.signOut().then(() => {
+        window.location.href = "/index.html"; // return to login page
+      });
+    });
+
+    // Protect dashboard: redirect to login if not signed in
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "/index.html"; // replace with your login page
+      }
+    });
+  </script>
+</body>
+</html>
+
 <section id="video-tool" class="py-16 bg-[#2b1f38]">
   <div class="max-w-6xl mx-auto px-6">
     <h2 class="text-4xl font-bold text-center text-[#D4AF37] mb-12">Video Creation Tool</h2>
