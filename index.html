@@ -14,133 +14,19 @@
   .footer-links a { color: #D4AF37; text-decoration: underline; }
 </style>
 </head>
-<body>
-<!-- Place this at the bottom, just before </body> -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kairah Studio Auth</title>
-<script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
-<script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-[#2b1f38] flex items-center justify-center min-h-screen">
-
-<div class="max-w-md w-full p-6 bg-[#3D2C41] rounded-2xl shadow-lg">
-  <h2 class="text-3xl font-bold text-[#D4AF37] text-center mb-6">Kairah Studio</h2>
-
-  <!-- Tabs -->
-  <div class="flex justify-around mb-4">
-    <button id="tab-signup" class="text-[#D4AF37] font-bold">Sign Up</button>
-    <button id="tab-login" class="text-white">Login</button>
+<body><section id="signup" class="py-16 max-w-md mx-auto px-6">
+  <h2 class="text-3xl font-bold text-center text-[#D4AF37] mb-8">Sign Up / Login</h2>
+  <div class="bg-[#3D2C41] p-8 rounded-xl shadow-lg">
+    <input type="email" id="email" placeholder="Email" class="w-full p-3 mb-4 rounded text-black">
+    <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-4 rounded text-black">
+    <button id="signup-btn" class="btn w-full mb-2">Sign Up</button>
+    <button id="login-btn" class="btn w-full mb-2">Login</button>
+    <button id="google-login" class="btn w-full mb-2">Sign In with Google</button>
+    <p class="mt-2 text-sm text-center text-[#D4AF37]">Forgot password? <a href="#">Reset here</a></p>
+    <p class="mt-2 text-sm text-center text-[#ff4d6d]">Support: keishapoa@gmail.com</p>
   </div>
-
-  <!-- Signup Form -->
-  <form id="signup-form" class="flex flex-col gap-4">
-    <input type="text" id="signup-name" placeholder="Name" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
-    <input type="email" id="signup-email" placeholder="Email" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
-    <input type="password" id="signup-password" placeholder="Password" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
-    <button type="submit" class="p-3 rounded-lg bg-[#D4AF37] text-black font-bold">Sign Up</button>
-    <p id="signup-status" class="text-center mt-2"></p>
-  </form>
-
-  <!-- Login Form -->
-  <form id="login-form" class="flex flex-col gap-4 hidden">
-    <input type="email" id="login-email" placeholder="Email" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
-    <input type="password" id="login-password" placeholder="Password" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
-    <button type="submit" class="p-3 rounded-lg bg-[#D4AF37] text-black font-bold">Login</button>
-    <p id="login-status" class="text-center mt-2"></p>
-  </form>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-
-// 🔑 Replace this with your Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyAGlNOCAwsgeDnSJtBux2uIMuP0p_jBJns",
-  authDomain: "kairah-studio.firebaseapp.com",
-  projectId: "kairah-studio",
-  storageBucket: "kairah-studio.appspot.com",
-  messagingSenderId: "145122424961",
-  appId: "1:145122424961:web:89c26c800c2d32c7503580",
-  measurementId: "G-KBJT3RME4G"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// Tabs
-const signupTab = document.getElementById("tab-signup");
-const loginTab = document.getElementById("tab-login");
-const signupForm = document.getElementById("signup-form");
-const loginForm = document.getElementById("login-form");
-
-signupTab.addEventListener("click", () => {
-  signupForm.classList.remove("hidden");
-  loginForm.classList.add("hidden");
-  signupTab.classList.add("text-[#D4AF37]");
-  loginTab.classList.remove("text-[#D4AF37]");
-  loginTab.classList.add("text-white");
-});
-loginTab.addEventListener("click", () => {
-  loginForm.classList.remove("hidden");
-  signupForm.classList.add("hidden");
-  loginTab.classList.add("text-[#D4AF37]");
-  signupTab.classList.remove("text-[#D4AF37]");
-  signupTab.classList.add("text-white");
-});
-
-// Signup
-signupForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const name = document.getElementById("signup-name").value;
-  const email = document.getElementById("signup-email").value;
-  const password = document.getElementById("signup-password").value;
-  const statusEl = document.getElementById("signup-status");
-  statusEl.textContent = "Creating account...";
-
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    await sendEmailVerification(user);
-    statusEl.textContent = "✅ Account created! Check your email to verify.";
-    signupForm.reset();
-  } catch(err) {
-    statusEl.textContent = `❌ ${err.message}`;
-    console.error(err);
-  }
-});
-
-// Login
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
-  const statusEl = document.getElementById("login-status");
-  statusEl.textContent = "Logging in...";
-
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    if(!user.emailVerified) {
-      statusEl.textContent = "❌ Please verify your email before logging in.";
-      return;
-    }
-    statusEl.textContent = "✅ Login successful! Redirecting...";
-    // Redirect to video tool
-    setTimeout(() => { window.location.href = "/video-tool.html"; }, 1500);
-  } catch(err) {
-    statusEl.textContent = `❌ ${err.message}`;
-    console.error(err);
-  }
-});
-</script>
-
-</body>
-</html>
+</section>
+<!-- Place this at the bottom, just before </body> -->
 <section id="video-tool" class="py-16 bg-[#2b1f38]">
   <div class="max-w-6xl mx-auto px-6">
     <h2 class="text-4xl font-bold text-center text-[#D4AF37] mb-12">Video Creation Tool</h2>
@@ -309,26 +195,68 @@ async function generateVideo(user) {
   }
 }
 </script>
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInAnonymously, createUserWithEmailAndPassword, linkWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
-const auth = getAuth();
+// init app (use your firebaseConfig)
+const firebaseConfig = { /* your config */ };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Example login function
-async function login(email, password) {
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    // User is now signed in, redirect to video tool
-    window.location.href = '/video-tool.html'; // Replace with your tool page path
-  } catch (err) {
-    console.error(err);
-    alert('Login failed: ' + err.message);
-  }
+// ensure anonymous sign-in on page load
+async function ensureAnonymousUser(){
+  return new Promise((resolve, reject) => {
+    onAuthStateChanged(auth, async (user) => {
+      if(user){
+        // user exists (anonymous or real)
+        resolve(user);
+      } else {
+        try {
+          const anon = await signInAnonymously(auth);
+          resolve(anon.user);
+        } catch(e) {
+          reject(e);
+        }
+      }
+    });
+  });
 }
 
-// Auto-redirect if already logged in
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is logged in
-    window.location.href = '/video-tool.html'; // Only redirect if not already on video tool page
+// helper: get or create user doc with plan + videoCount
+async function ensureUserDoc(uid){
+  const uRef = doc(db, 'users', uid);
+  const snap = await getDoc(uRef);
+  if(!snap.exists()){
+    await setDoc(uRef, { plan: 'free', videoCount: 0, createdAt: new Date().toISOString() });
+    return { plan: 'free', videoCount: 0 };
   }
+  return snap.data();
+}
+
+// call at app start
+let currentUser = null;
+await ensureAnonymousUser().then(async (user)=>{
+  currentUser = user;
+  // ensure user doc exists
+  await ensureUserDoc(user.uid);
+  console.log('Signed in as', user.uid, 'isAnonymous=', user.isAnonymous);
+}).catch(err=>{
+  console.error('Anon sign-in failed', err);
 });
+// call when user signs up (provide email/password from your signup modal)
+async function convertAnonToEmail(email, password){
+  const credential = EmailAuthProvider.credential(email, password);
+  try {
+    const linked = await linkWithCredential(auth.currentUser, credential);
+    // now auth.currentUser is the real email user; their uid remains same
+    // update Firestore user doc plan => 'pro' etc
+    await updateDoc(doc(db,'users', auth.currentUser.uid), { plan: 'pro' });
+    showSuccess('Account created & linked. Enjoy Pro features');
+  } catch(err){
+    // handle error (e.g., email already in use)
+    showError('Could not create account: ' + err.message);
+  }
+}
