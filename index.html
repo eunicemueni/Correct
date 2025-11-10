@@ -16,56 +16,147 @@
 </head>
 <body>
 <!-- Place this at the bottom, just before </body> -->
-<section id="contact" class="py-12 bg-[#3D2C41] text-white">
-  <div class="max-w-3xl mx-auto px-6">
-    <h2 class="text-3xl font-bold mb-6 text-[#D4AF37]">Contact Us</h2>
-    <form id="contact-form" class="flex flex-col gap-4">
-      <input type="text" id="name" placeholder="Your Name" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
-      <input type="email" id="email" placeholder="Your Email" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
-      <textarea id="message" placeholder="Your Message" class="p-3 rounded-lg bg-[#2b1f38] text-white" rows="4" required></textarea>
-      <button type="submit" class="btn bg-[#D4AF37] text-black font-bold">Send</button>
-    </form>
-    <p id="form-status" class="mt-2 text-center"></p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kairah Studio Auth</title>
+<script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-[#2b1f38] text-white flex items-center justify-center min-h-screen">
+
+<div class="max-w-md w-full p-6 bg-[#3D2C41] rounded-2xl shadow-lg">
+  <h2 class="text-3xl font-bold text-[#D4AF37] text-center mb-6">Kairah Studio</h2>
+
+  <!-- Tabs -->
+  <div class="flex justify-around mb-6">
+    <button id="signup-tab" class="text-[#D4AF37] font-semibold border-b-2 border-[#D4AF37]">Sign Up</button>
+    <button id="login-tab" class="text-white font-semibold">Login</button>
   </div>
-</section>
+
+  <!-- Signup Form -->
+  <form id="signup-form" class="flex flex-col gap-4">
+    <input type="text" id="signup-name" placeholder="Name" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
+    <input type="email" id="signup-email" placeholder="Email" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
+    <input type="password" id="signup-password" placeholder="Password" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
+    <button type="submit" class="p-3 rounded-lg bg-[#D4AF37] text-black font-bold">Sign Up</button>
+    <p id="signup-status" class="text-center mt-2"></p>
+  </form>
+
+  <!-- Login Form -->
+  <form id="login-form" class="flex flex-col gap-4 hidden">
+    <input type="email" id="login-email" placeholder="Email" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
+    <input type="password" id="login-password" placeholder="Password" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
+    <button type="submit" class="p-3 rounded-lg bg-[#D4AF37] text-black font-bold">Login</button>
+    <button type="button" id="forgot-password" class="text-sm text-[#E7D2CB] underline mt-2">Forgot Password?</button>
+    <p id="login-status" class="text-center mt-2"></p>
+  </form>
+</div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
 
-  // Your Firebase config
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "kairah-studio.firebaseapp.com",
-    projectId: "kairah-studio",
-    storageBucket: "kairah-studio.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID",
-    measurementId: "YOUR_MEASUREMENT_ID"
-  };
+// Firebase config
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "kairah-studio.firebaseapp.com",
+  projectId: "kairah-studio",
+  storageBucket: "kairah-studio.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  // Contact form submit
-  const form = document.getElementById("contact-form");
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const statusEl = document.getElementById("form-status");
-    statusEl.textContent = "Sending...";
+// Tabs
+const signupTab = document.getElementById("signup-tab");
+const loginTab = document.getElementById("login-tab");
+const signupForm = document.getElementById("signup-form");
+const loginForm = document.getElementById("login-form");
 
-    try {
-      await addDoc(collection(db, "messages"), {
-        name: document.getElementById("name").value,
-        email: document.getElementById("email").value,
-        message: document.getElementById("message").value,
-        createdAt: new Date().toISOString()
-      });
-      statusEl.textContent = "✅ Message sent! We'll reach out soon.";
-      form.reset();
-    } catch (err) {
-      statusEl.textContent = "❌ Failed to send. Try again.";
-      console.error(err);
+signupTab.addEventListener("click", () => {
+  signupForm.classList.remove("hidden");
+  loginForm.classList.add("hidden");
+  signupTab.classList.add("text-[#D4AF37]", "border-b-2", "border-[#D4AF37]");
+  loginTab.classList.remove("text-[#D4AF37]", "border-b-2", "border-[#D4AF37]");
+});
+
+loginTab.addEventListener("click", () => {
+  loginForm.classList.remove("hidden");
+  signupForm.classList.add("hidden");
+  loginTab.classList.add("text-[#D4AF37]", "border-b-2", "border-[#D4AF37]");
+  signupTab.classList.remove("text-[#D4AF37]", "border-b-2", "border-[#D4AF37]");
+});
+
+// SIGNUP
+signupForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("signup-name").value;
+  const email = document.getElementById("signup-email").value;
+  const password = document.getElementById("signup-password").value;
+  const statusEl = document.getElementById("signup-status");
+  statusEl.textContent = "Creating account...";
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    await sendEmailVerification(user);
+    statusEl.textContent = "✅ Account created! Check your email to verify.";
+    signupForm.reset();
+  } catch (err) {
+    statusEl.textContent = `❌ ${err.message}`;
+    console.error(err);
+  }
+});
+
+// LOGIN
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
+  const statusEl = document.getElementById("login-status");
+  statusEl.textContent = "Logging in...";
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    if (user.emailVerified) {
+      statusEl.textContent = "✅ Login successful!";
+      setTimeout(()=>{ window.location.href = "/video-tool"; }, 1000);
+    } else {
+      statusEl.textContent = "⚠️ Please verify your email first.";
     }
-  });
+  } catch(err) {
+    statusEl.textContent = `❌ ${err.message}`;
+  }
+});
+
+// FORGOT PASSWORD
+document.getElementById("forgot-password").addEventListener("click", async () => {
+  const email = prompt("Enter your email for password reset:");
+  if(email){
+    try{
+      await sendPasswordResetEmail(auth, email);
+      alert("✅ Password reset email sent!");
+    }catch(err){
+      alert(`❌ ${err.message}`);
+    }
+  }
+});
+
+// AUTO REDIRECT if already logged in & verified
+onAuthStateChanged(auth, (user)=>{
+  if(user && user.emailVerified){
+    window.location.href = "/video-tool";
+  }
+});
 </script>
+</body>
+</html>
