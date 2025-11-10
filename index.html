@@ -15,19 +15,33 @@
 </style>
 </head>
 <body>
+<!-- Place this at the bottom, just before </body> -->
+ <section id="signup" class="py-16 max-w-md mx-auto px-6">
+  <h2 class="text-3xl font-bold text-center text-[#D4AF37] mb-8">Sign Up / Login</h2>
+  <div class="bg-[#3D2C41] p-8 rounded-xl shadow-lg">
+    <input type="email" id="email" placeholder="Email" class="w-full p-3 mb-4 rounded text-black">
+    <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-4 rounded text-black">
+    <button id="signup-btn" class="btn w-full mb-2 bg-[#D4AF37] text-black font-bold p-3 rounded">Sign Up</button>
+    <button id="login-btn" class="btn w-full mb-2 bg-[#ff4d6d] text-white font-bold p-3 rounded">Login</button>
+    <button id="google-login" class="btn w-full mb-2 bg-[#4285F4] text-white font-bold p-3 rounded">Sign In with Google</button>
+    <p class="mt-2 text-sm text-center text-[#D4AF37]">Forgot password? <a href="#" id="reset-password">Reset here</a></p>
+    <p class="mt-2 text-sm text-center text-[#ff4d6d]">Support: keishapoa@gmail.com</p>
+  </div>
+</section>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script>
-  // Your Firebase config
+  // Replace with your Firebase config
   const firebaseConfig = {
-    apiKey: "AIzaSyAGlNOCAwsgeDnSJtBux2uIMuP0p_jBJns",
-    authDomain: "kairah-studio.firebaseapp.com",
-    projectId: "kairah-studio",
-    storageBucket: "kairah-studio.firebasestorage.app",
-    messagingSenderId: "145122424961",
-    appId: "1:145122424961:web:89c26c800c2d32c7503580"
+    apiKey: "YOUR-KEY",
+    authDomain: "YOUR-APP.firebaseapp.com",
+    projectId: "YOUR-PROJECT-ID",
+    storageBucket: "YOUR-APP.appspot.com",
+    messagingSenderId: "YOUR-SENDER-ID",
+    appId: "YOUR-APP-ID"
   };
 
   // Initialize Firebase
@@ -38,28 +52,28 @@
   document.getElementById('signup-btn').addEventListener('click', () => {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    if (!email || !password) { alert("Please enter email and password."); return; }
+
     auth.createUserWithEmailAndPassword(email, password)
       .then(userCredential => {
         alert('Signed up successfully!');
         console.log(userCredential.user);
       })
-      .catch(error => {
-        alert(error.message);
-      });
+      .catch(error => alert(error.message));
   });
 
   // Login
   document.getElementById('login-btn').addEventListener('click', () => {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    if (!email || !password) { alert("Please enter email and password."); return; }
+
     auth.signInWithEmailAndPassword(email, password)
       .then(userCredential => {
         alert('Logged in successfully!');
         console.log(userCredential.user);
       })
-      .catch(error => {
-        alert(error.message);
-      });
+      .catch(error => alert(error.message));
   });
 
   // Google Sign-In
@@ -70,13 +84,90 @@
         alert('Google sign-in successful!');
         console.log(result.user);
       })
-      .catch(error => {
-        alert(error.message);
-      });
+      .catch(error => alert(error.message));
+  });
+
+  // Password Reset
+  document.getElementById('reset-password').addEventListener('click', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    if (!email) { alert("Enter your email to reset password."); return; }
+
+    auth.sendPasswordResetEmail(email)
+      .then(() => alert('Password reset email sent!'))
+      .catch(error => alert(error.message));
   });
 </script>
-  
-<!-- Place this at the bottom, just before </body> -->
+ <script>
+  // Firebase config (replace with your own)
+  const firebaseConfig = {
+    apiKey: "YOUR-KEY",
+    authDomain: "YOUR-APP.firebaseapp.com",
+    projectId: "YOUR-PROJECT-ID",
+    storageBucket: "YOUR-APP.appspot.com",
+    messagingSenderId: "YOUR-SENDER-ID",
+    appId: "YOUR-APP-ID"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // Redirect if already logged in
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      // User is signed in, redirect to dashboard
+      window.location.href = "/dashboard.html"; // change this to your dashboard URL
+    }
+  });
+
+  // Sign Up
+  document.getElementById('signup-btn').addEventListener('click', () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    if (!email || !password) { alert("Please enter email and password."); return; }
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        alert('Signed up successfully!');
+      })
+      .catch(error => alert(error.message));
+  });
+
+  // Login
+  document.getElementById('login-btn').addEventListener('click', () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    if (!email || !password) { alert("Please enter email and password."); return; }
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        alert('Logged in successfully!');
+      })
+      .catch(error => alert(error.message));
+  });
+
+  // Google Sign-In
+  document.getElementById('google-login').addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+      .then(result => {
+        alert('Google sign-in successful!');
+      })
+      .catch(error => alert(error.message));
+  });
+
+  // Password Reset
+  document.getElementById('reset-password').addEventListener('click', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    if (!email) { alert("Enter your email to reset password."); return; }
+
+    auth.sendPasswordResetEmail(email)
+      .then(() => alert('Password reset email sent!'))
+      .catch(error => alert(error.message));
+  });
+</script>
+
 <section id="video-tool" class="py-16 bg-[#2b1f38]">
   <div class="max-w-6xl mx-auto px-6">
     <h2 class="text-4xl font-bold text-center text-[#D4AF37] mb-12">Video Creation Tool</h2>
