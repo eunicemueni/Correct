@@ -16,12 +16,12 @@
 </head>
 <body>
 <!-- Place this at the bottom, just before </body> -->
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kairah Studio Signup</title>
+<title>Kairah Studio Auth</title>
 <script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
 <script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
@@ -29,8 +29,15 @@
 <body class="bg-[#2b1f38] flex items-center justify-center min-h-screen">
 
 <div class="max-w-md w-full p-6 bg-[#3D2C41] rounded-2xl shadow-lg">
-  <h2 class="text-3xl font-bold text-[#D4AF37] text-center mb-6">Sign Up - Kairah Studio</h2>
+  <h2 class="text-3xl font-bold text-[#D4AF37] text-center mb-6">Kairah Studio</h2>
 
+  <!-- Tabs -->
+  <div class="flex justify-around mb-4">
+    <button id="tab-signup" class="text-[#D4AF37] font-bold">Sign Up</button>
+    <button id="tab-login" class="text-white">Login</button>
+  </div>
+
+  <!-- Signup Form -->
   <form id="signup-form" class="flex flex-col gap-4">
     <input type="text" id="signup-name" placeholder="Name" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
     <input type="email" id="signup-email" placeholder="Email" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
@@ -38,13 +45,21 @@
     <button type="submit" class="p-3 rounded-lg bg-[#D4AF37] text-black font-bold">Sign Up</button>
     <p id="signup-status" class="text-center mt-2"></p>
   </form>
+
+  <!-- Login Form -->
+  <form id="login-form" class="flex flex-col gap-4 hidden">
+    <input type="email" id="login-email" placeholder="Email" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
+    <input type="password" id="login-password" placeholder="Password" class="p-3 rounded-lg bg-[#2b1f38] text-white" required>
+    <button type="submit" class="p-3 rounded-lg bg-[#D4AF37] text-black font-bold">Login</button>
+    <p id="login-status" class="text-center mt-2"></p>
+  </form>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
 
-// Firebase config - make sure these are correct for your project
+// 🔑 Replace this with your Firebase config
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "kairah-studio.firebaseapp.com",
@@ -58,24 +73,67 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// Tabs
+const signupTab = document.getElementById("tab-signup");
+const loginTab = document.getElementById("tab-login");
 const signupForm = document.getElementById("signup-form");
-const statusEl = document.getElementById("signup-status");
+const loginForm = document.getElementById("login-form");
 
+signupTab.addEventListener("click", () => {
+  signupForm.classList.remove("hidden");
+  loginForm.classList.add("hidden");
+  signupTab.classList.add("text-[#D4AF37]");
+  loginTab.classList.remove("text-[#D4AF37]");
+  loginTab.classList.add("text-white");
+});
+loginTab.addEventListener("click", () => {
+  loginForm.classList.remove("hidden");
+  signupForm.classList.add("hidden");
+  loginTab.classList.add("text-[#D4AF37]");
+  signupTab.classList.remove("text-[#D4AF37]");
+  signupTab.classList.add("text-white");
+});
+
+// Signup
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = document.getElementById("signup-name").value;
   const email = document.getElementById("signup-email").value;
   const password = document.getElementById("signup-password").value;
-
+  const statusEl = document.getElementById("signup-status");
   statusEl.textContent = "Creating account...";
 
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     await sendEmailVerification(user);
-    statusEl.textContent = "✅ Account created! Check your email to verify before logging in.";
+    statusEl.textContent = "✅ Account created! Check your email to verify.";
     signupForm.reset();
-  } catch (err) {
+  } catch(err) {
+    statusEl.textContent = `❌ ${err.message}`;
+    console.error(err);
+  }
+});
+
+// Login
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
+  const statusEl = document.getElementById("login-status");
+  statusEl.textContent = "Logging in...";
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    if(!user.emailVerified) {
+      statusEl.textContent = "❌ Please verify your email before logging in.";
+      return;
+    }
+    statusEl.textContent = "✅ Login successful! Redirecting...";
+    // Redirect to video tool
+    setTimeout(() => { window.location.href = "/video-tool.html"; }, 1500);
+  } catch(err) {
     statusEl.textContent = `❌ ${err.message}`;
     console.error(err);
   }
@@ -84,4 +142,3 @@ signupForm.addEventListener("submit", async (e) => {
 
 </body>
 </html>
-
