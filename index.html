@@ -28,14 +28,12 @@
     <p class="mt-2 text-sm text-center text-[#ff4d6d]">Support: keishapoa@gmail.com</p>
   </div>
 </section>
-
-<!-- Firebase SDK -->
+<!-- 1. Add Firebase SDK scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
 <script>
-  // Replace with your Firebase config
-  const firebaseConfig = {
+  // 2. Replace with your Firebase config
+const firebaseConfig = {
     apiKey: "AIzaSyAGlNOCAwsgeDnSJtBux2uIMuP0p_jBJns",
     authDomain: "kairah-studio.firebaseapp.com",
     projectId: "kairah-studio",
@@ -43,131 +41,59 @@
     messagingSenderId: "145122424961",
     appId: "G-KBJT3RME4G"
   };
-
-  // Initialize Firebase
+  // 3. Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // Sign Up
+  // 4. Sign Up button
   document.getElementById('signup-btn').addEventListener('click', () => {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    if (!email || !password) { alert("Please enter email and password."); return; }
+    if (!email || !password) { alert("Enter email and password"); return; }
 
     auth.createUserWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        alert('Signed up successfully!');
-        console.log(userCredential.user);
+      .then(() => {
+        // Redirect after signup
+        window.location.href = "/dashboard.html"; // <-- change this to your page
       })
       .catch(error => alert(error.message));
   });
 
-  // Login
+  // 5. Login button
   document.getElementById('login-btn').addEventListener('click', () => {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    if (!email || !password) { alert("Please enter email and password."); return; }
+    if (!email || !password) { alert("Enter email and password"); return; }
 
     auth.signInWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        alert('Logged in successfully!');
-        console.log(userCredential.user);
+      .then(() => {
+        // Redirect after login
+        window.location.href = "/dashboard.html"; // <-- change this to your page
       })
       .catch(error => alert(error.message));
   });
 
-  // Google Sign-In
+  // 6. Google login button
   document.getElementById('google-login').addEventListener('click', () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
-      .then(result => {
-        alert('Google sign-in successful!');
-        console.log(result.user);
+      .then(() => {
+        window.location.href = "/dashboard.html"; // <-- change this to your page
       })
       .catch(error => alert(error.message));
   });
 
-  // Password Reset
-  document.getElementById('reset-password').addEventListener('click', (e) => {
+  // 7. Password reset
+  document.querySelector('#signup a').addEventListener('click', (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
-    if (!email) { alert("Enter your email to reset password."); return; }
+    if (!email) { alert("Enter your email to reset password"); return; }
 
     auth.sendPasswordResetEmail(email)
-      .then(() => alert('Password reset email sent!'))
+      .then(() => alert("Password reset email sent!"))
       .catch(error => alert(error.message));
   });
-</script>
- <script>
-  // Firebase config (replace with your own)
-  const firebaseConfig = {
-    apiKey: "YOUR-KEY",
-    authDomain: "YOUR-APP.firebaseapp.com",
-    projectId: "YOUR-PROJECT-ID",
-    storageBucket: "YOUR-APP.appspot.com",
-    messagingSenderId: "YOUR-SENDER-ID",
-    appId: "YOUR-APP-ID"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-
-  // Redirect if already logged in
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      // User is signed in, redirect to dashboard
-      window.location.href = "/dashboard.html"; // change this to your dashboard URL
-    }
-  });
-
-  // Sign Up
-  document.getElementById('signup-btn').addEventListener('click', () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    if (!email || !password) { alert("Please enter email and password."); return; }
-
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        alert('Signed up successfully!');
-      })
-      .catch(error => alert(error.message));
-  });
-
-  // Login
-  document.getElementById('login-btn').addEventListener('click', () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    if (!email || !password) { alert("Please enter email and password."); return; }
-
-    auth.signInWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        alert('Logged in successfully!');
-      })
-      .catch(error => alert(error.message));
-  });
-
-  // Google Sign-In
-  document.getElementById('google-login').addEventListener('click', () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-      .then(result => {
-        alert('Google sign-in successful!');
-      })
-      .catch(error => alert(error.message));
-  });
-
-  // Password Reset
-  document.getElementById('reset-password').addEventListener('click', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    if (!email) { alert("Enter your email to reset password."); return; }
-
-    auth.sendPasswordResetEmail(email)
-      .then(() => alert('Password reset email sent!'))
-      .catch(error => alert(error.message));
-  });
-</script>
-
+</script> 
 <section id="video-tool" class="py-16 bg-[#2b1f38]">
   <div class="max-w-6xl mx-auto px-6">
     <h2 class="text-4xl font-bold text-center text-[#D4AF37] mb-12">Video Creation Tool</h2>
